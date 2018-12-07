@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+
+    <style type="text/css">
+
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        li{
+            list-style: none;
+        }
+
+        .search{
+            position: relative;
+        }
+
+        .header-search-module{
+            margin: 20px auto 0;
+            width: 550px;
+            height: 40px;
+            border: 1px solid #13D1BE;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .header-search-module input{
+            border: none;
+            line-height: 100%;
+            color: #999;
+            box-sizing: border-box;
+            display: inline-block;
+            padding: 10px;
+            font-size: 15px;
+            height: 100%;
+            background: 0 0;
+            width: 84%;
+        }
+
+        .header-btn{
+            outline: 0;
+            width: 16%;
+            background: #13D1BE;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            height: 100%;
+            float: right;
+        }
+
+        .suggest{
+            position: absolute;
+            left: 50%;
+            transform: translate(-59% , 0);
+            width: 465px;
+            box-sizing: border-box;
+            border: 1px solid #E5E5E5;
+            border-top: none;
+            background: #fff;
+            box-shadow: 0 3px 5px 0 rgba(0,0,0,.1);
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            color: #999;
+            font-size: 14px;
+            padding: 10px;
+            line-height: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div class="search" style="width: 100%">
+    <div class="header-search-module">
+        <input id="myInput" type="text" placeholder="名字" onkeyup="search()">
+        <button class="header-btn">
+            <span class="icon-search">搜索</span>
+        </button>
+    </div>
+    <div class="suggest" style="display: none">
+        <ul id="suggest-content" style="display: none">
+        </ul>
+    </div>
+</div>
+
+<script>
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", "search.txt");
+
+    xhr.setRequestHeader("content-type", "charset=utf-8");
+
+    xhr.send();
+
+    function getContent(){
+
+        xhr.open("GET", "search.txt");
+
+        xhr.setRequestHeader("content-type", "charset=utf-8");
+
+        xhr.send();
+    }
+
+    var tim = setInterval(getContent,7000);
+
+    var arr = [];
+
+    xhr.onreadystatechange = function () {
+
+
+        if (xhr.readyState==4 && xhr.status==200) {
+            arr = [];
+            var st = xhr.responseText;
+            var str = JSON.parse(st);
+            for (let i in str){
+                arr.push(i);
+                console.log(str[i]);
+            }
+            console.log(str);
+            removeLi();
+            var suggestContent = document.getElementById("suggest-content");
+            for(var i=0; i<arr.length; i++){
+                var li=document.createElement("li");
+                li.innerHTML=arr[i];
+                li.style.display="none";
+                console.log(arr[i]);
+                suggestContent.append(li);
+            }
+
+        }
+    };
+
+
+
+    function search() {
+        clearInterval(tim);
+        var input, filter, ul, li;
+        input = document.getElementById('myInput');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("suggest-content");
+        li = ul.getElementsByTagName('li');
+
+        for (let i = 0; i < li.length; i++) {
+            if (li[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                ul.parentElement.style.display = "";
+                ul.style.display = "";
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+               // ul.removeChild(li[i]);
+            }
+        }
+
+        if(filter==""){
+            cleanLi();
+            tim = setInterval(getContent,1000);
+        }
+
+    }
+
+    function cleanLi() {
+        var ul = document.getElementById("suggest-content");
+        var li = ul.getElementsByTagName('li');
+        ul.parentElement.style.display = "none";
+        for (let i = 0; i < li.length; i++){
+            ul.style.display = "none";
+        }
+    }
+
+    function removeLi() {
+        var ul = document.getElementById("suggest-content");
+        var li = ul.getElementsByTagName("li");
+        for (let i = li.length-1; i >= 0; i--){
+            // console.log(i);
+            // console.log(li.length);
+            ul.removeChild(li[i]);
+        }
+        // console.log(li.length);
+    }
+
+
+</script>
+
+</body>
+</html>
